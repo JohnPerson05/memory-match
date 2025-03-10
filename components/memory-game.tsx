@@ -24,6 +24,7 @@ const placeholderImages = [
   "/master.jpg?height=100&width=100&text=12",
   "/holy.jpg?height=100&width=100&text=12",
   "/xoxo.jpg?height=100&width=100&text=12",
+  "/meme.jpg?height=100&width=100&text=12",
 
 ]
 
@@ -114,16 +115,20 @@ export default function MemoryGame() {
     const startShuffling = () => {
       setIsShuffling(true)
   
-      // Use much slower speeds as requested
+      // Match shuffle speed with pulse animation timing
       let shuffleSpeed: number
       if (level <= 3) {
-        shuffleSpeed = 600 // Very slow
+        shuffleSpeed = 600 // 0.6s pulse
       } else if (level <= 5) {
-        shuffleSpeed = 400 // Slow
+        shuffleSpeed = 400 // 0.4s pulse
       } else if (level <= 7) {
-        shuffleSpeed = 200 // Medium
+        shuffleSpeed = 200 // 0.2s pulse
+      } else if (level <= 8) {
+        shuffleSpeed = 100 // 0.1s pulse
+      } else if (level <= 10) {
+        shuffleSpeed = 50 // 0.05s pulse
       } else {
-        shuffleSpeed = 10 // Fast
+        shuffleSpeed = 5 // 0.01s pulse
       }
   
       // Track the position of the target card during shuffling
@@ -160,19 +165,19 @@ export default function MemoryGame() {
         currentShuffle++
   
         if (currentShuffle < shuffleCount) {
-          // Continue shuffling
+          // Continue shuffling with the same timing as the pulse animation
           shuffleTimerRef.current = setTimeout(performShuffle, shuffleSpeed)
         } else {
           // Pause before ending the shuffling phase
           setTimeout(() => {
             setIsShuffling(false)
             setGameState("guess")
-          }, 500)
+          }, shuffleSpeed) // Match the final pause with the shuffle speed
         }
       }
   
-      // Add a slight delay before starting the shuffle
-      setTimeout(performShuffle, 500)
+      // Start shuffling immediately without initial delay
+      performShuffle()
     }
   
     // Clean up shuffle timer
@@ -376,7 +381,7 @@ export default function MemoryGame() {
                 key={index}
                 className={`
                   aspect-square cursor-pointer transition-all duration-300 transform
-                  ${isShuffling ? "animate-pulse" : ""}
+                  ${isShuffling ? `animate-pulse ${level <= 3 ? "animate-[pulse_0.6s_ease-in-out_infinite]" : level <= 5 ? "animate-[pulse_0.4s_ease-in-out_infinite]" : level <= 7 ? "animate-[pulse_0.2s_ease-in-out_infinite]" : level <= 8 ? "animate-[pulse_0.1s_ease-in-out_infinite]" : level <= 10 ? "animate-[pulse_0.05s_ease-in-out_infinite]" : "animate-[pulse_0.01s_ease-in-out_infinite]"}` : ""}
                   ${selectedCard === index ? "scale-105" : "hover:scale-105"}
                   ${card === targetCard && gameState !== "guess" ? "ring-2 ring-green-400/50" : ""}
                 `}
